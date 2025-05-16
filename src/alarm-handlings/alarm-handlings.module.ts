@@ -4,6 +4,8 @@ import { AlarmHandling, AlarmHandlingSchema } from './schemas/alarm-handling.sch
 import { MachineAlarmModule } from 'src/machine-alarms/machine-alarms.module';
 import { AlarmHandlingController } from './alarm-handlings.controller';
 import { AlarmHandlingService } from './alarm-handlings.service';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Module({
@@ -12,7 +14,7 @@ import { AlarmHandlingService } from './alarm-handlings.service';
     MachineAlarmModule,
   ],
   controllers: [AlarmHandlingController],
-  providers: [AlarmHandlingService],
+  providers: [AlarmHandlingService,JwtAuthGuard, JwtService],
   exports: [AlarmHandlingService],
 })
 export class AlarmHandlingModule { }
