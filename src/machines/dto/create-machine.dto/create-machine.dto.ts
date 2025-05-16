@@ -10,6 +10,14 @@ export class CreateMachineDto {
   userGuid?: string;
 
   @ApiProperty({
+    description: 'Kode unik mesin',
+    example: '001MG',
+  })
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+
+  @ApiProperty({
     description: 'Nama mesin',
     example: 'Mesin Pemotong Kayu',
   })

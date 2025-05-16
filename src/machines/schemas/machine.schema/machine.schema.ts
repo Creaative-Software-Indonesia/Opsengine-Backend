@@ -19,6 +19,10 @@ export class Machine extends Document {
 
     @ApiProperty()
     @Prop({ required: true })
+    code: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
     name: string;
 
     @ApiProperty()
