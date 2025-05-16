@@ -1,21 +1,31 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards, Req } from '@nestjs/common';
 import { MachinesService } from './machines.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ResponseUtil } from '../common/response.util';
 import { CreateMachineDto } from './dto/create-machine.dto/create-machine.dto';
 import { UpdateMachineDto } from './dto/update-machine.dto/update-machine.dto';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { AuthenticatedRequest } from 'express';
 
 @ApiTags('Machines')
 @Controller('machines')
 export class MachinesController {
-  constructor(private readonly machinesService: MachinesService) {}
+  constructor(private readonly machinesService: MachinesService) { }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new machine' })
   @ApiResponse({ status: 201, description: 'Machine created successfully' })
-  async create(@Body() createMachineDto: CreateMachineDto) {
-    // const machine = await this.machinesService.create(createMachineDto);
-    // return ResponseUtil.success(machine, 'Machine created successfully');
+  async create(@Body() createMachineDto: CreateMachineDto, @Req() req: AuthenticatedRequest) {
+    const user:any = req.user ;
+    const payload ={
+      ...createMachineDto,
+      userGuid: user.guid,
+      companyGuid:user.companyGuid
+    }
+    const machine = await this.machinesService.create(payload);
+    return ResponseUtil.success(machine, 'Machine created successfully');
   }
 
   @Get()

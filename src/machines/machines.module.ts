@@ -3,6 +3,8 @@ import { MachinesService } from './machines.service';
 import { MachinesController } from './machines.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Machine, MachineSchema } from './schemas/machine.schema/machine.schema';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Module({
@@ -10,7 +12,7 @@ import { Machine, MachineSchema } from './schemas/machine.schema/machine.schema'
     MongooseModule.forFeature([{ name: Machine.name, schema: MachineSchema }]),
   ],
   controllers: [MachinesController],
-  providers: [MachinesService],
+  providers: [MachinesService,JwtAuthGuard, JwtService],
   exports: [MachinesService],
 })
 export class MachinesModule { }
