@@ -4,6 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true, versionKey: false })
 export class Machine extends Document {
+
+    @ApiProperty()
+    @Prop({ required: true, unique: true })
+    guid: string;
+
     @ApiProperty()
     @Prop({ required: true })
     companyGuid: string;
@@ -11,10 +16,6 @@ export class Machine extends Document {
     @ApiProperty()
     @Prop({ required: true })
     userGuid: string;
-
-    @ApiProperty()
-    @Prop({ required: true, unique: true })
-    guid: string;
 
     @ApiProperty()
     @Prop({ required: true })

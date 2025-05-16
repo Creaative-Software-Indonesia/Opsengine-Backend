@@ -11,9 +11,10 @@ export class MachinesService {
     constructor(@InjectModel(Machine.name) private machineModel: Model<Machine>) { }
 
     async create(createMachineDto: CreateMachineDto): Promise<Machine> {
+        const guid = `MACHINE-${uuidv4()}-${new Date().getFullYear()}`;
         const createdMachine = new this.machineModel({
             ...createMachineDto,
-            guid: uuidv4(),
+            guid,
         });
         return createdMachine.save();
     }
@@ -22,6 +23,13 @@ export class MachinesService {
         const skip = (page - 1) * limit;
         const data = await this.machineModel.find().skip(skip).limit(limit).exec();
         const total = await this.machineModel.countDocuments().exec();
+        return { data, total };
+    }
+
+       async findByCompany(page: number, limit: number,companyGuid:string): Promise<{ data: Machine[]; total: number }> {
+        const skip = (page - 1) * limit;
+        const data = await this.machineModel.find({companyGuid}).skip(skip).limit(limit).exec();
+        const total = await this.machineModel.countDocuments({companyGuid}).exec();
         return { data, total };
     }
 

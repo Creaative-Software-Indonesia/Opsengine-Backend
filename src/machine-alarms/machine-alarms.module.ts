@@ -4,6 +4,8 @@ import { MachineAlarm, MachineAlarmSchema } from './schemas/machine-alarm.schema
 import { MachineAlarmController } from './machine-alarms.controller';
 import { MachineAlarmService } from './machine-alarms.service';
 import { MachinesModule } from 'src/machines/machines.module';
+import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Module({
@@ -12,7 +14,7 @@ import { MachinesModule } from 'src/machines/machines.module';
     MachinesModule,
   ],
   controllers: [MachineAlarmController],
-  providers: [MachineAlarmService],
+  providers: [MachineAlarmService,JwtAuthGuard, JwtService],
   exports: [MachineAlarmService],
 })
 export class MachineAlarmModule { }

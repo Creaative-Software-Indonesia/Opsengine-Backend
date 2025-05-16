@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { MachineAlarm } from './schemas/machine-alarm.schema/machine-alarm.schema';
 import { CreateMachineAlarmDto, UpdateMachineAlarmDto } from './dto/create-machine-alarm.dto/create-machine-alarm.dto';
 import { ResponseUtil } from 'src/common/response.util';
+import { v4 as uuidv4 } from 'uuid';
 
 
 @Injectable()
@@ -12,7 +13,7 @@ export class MachineAlarmService {
 
     async create(createMachineAlarmDto: CreateMachineAlarmDto): Promise<any> {
         try {
-            const guid = this.generateGuid();
+            const guid = `ALARM-${uuidv4()}-${new Date().getFullYear()}`;
             const createdAlarm = new this.machineAlarmModel({
                 ...createMachineAlarmDto,
                 guid,
@@ -20,6 +21,7 @@ export class MachineAlarmService {
             const alarm = await createdAlarm.save();
             return ResponseUtil.success(alarm, 'Machine alarm created successfully');
         } catch (error) {
+            console.log(error);
             return ResponseUtil.error(error.message);
         }
     }
@@ -33,6 +35,28 @@ export class MachineAlarmService {
                 .exec();
                 
             const total = await this.machineAlarmModel.countDocuments({ machineGuid }).exec();
+            
+            return ResponseUtil.pagination(
+                alarms,
+                page,
+                limit,
+                total,
+                'Machine alarms retrieved successfully'
+            );
+        } catch (error) {
+            return ResponseUtil.error(error.message);
+        }
+    }
+
+    async findAll(companyGuid: string, page: number = 1, limit: number = 10): Promise<any> {
+        try {
+            const skip = (page - 1) * limit;
+            const alarms = await this.machineAlarmModel.find({ companyGuid })
+                .skip(skip)
+                .limit(limit)
+                .exec();
+                
+            const total = await this.machineAlarmModel.countDocuments({ companyGuid }).exec();
             
             return ResponseUtil.pagination(
                 alarms,
@@ -88,11 +112,5 @@ export class MachineAlarmService {
         }
     }
 
-    private generateGuid(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0,
-                v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
+    
 }

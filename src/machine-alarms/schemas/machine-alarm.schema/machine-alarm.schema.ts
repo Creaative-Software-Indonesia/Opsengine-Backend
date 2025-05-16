@@ -4,25 +4,33 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true, versionKey: false })
 export class MachineAlarm extends Document {
-    @ApiProperty()
-    @Prop({ required: true })
-    machineGuid: string;
+  @ApiProperty()
+  @Prop({ required: true, unique: true })
+  guid: string;
 
-    @ApiProperty()
-    @Prop({ required: true, unique: true })
-    guid: string;
+  @ApiProperty()
+  @Prop({ required: true })
+  companyGuid: string;
 
-    @ApiProperty()
-    @Prop({ required: true })
-    name: string;
+  @ApiProperty()
+  @Prop({ required: true })
+  userGuid: string;
 
-    @ApiProperty()
-    @Prop()
-    image: string;
+  @ApiProperty()
+  @Prop({ required: true })
+  machineGuid: string;
 
-    @ApiProperty()
-    @Prop()
-    description: string;
+  @ApiProperty()
+  @Prop({ required: true })
+  name: string;
+
+  @ApiProperty()
+  @Prop()
+  image: string;
+
+  @ApiProperty()
+  @Prop()
+  description: string;
 }
 
 export const MachineAlarmSchema = SchemaFactory.createForClass(MachineAlarm);
