@@ -70,7 +70,7 @@ export class InspectionReportService {
 
     async findOne(guid: string): Promise<any> {
         try {
-            const report = await this.reportModel.findByIdAndUpdate({guid}).exec();
+            const report = await this.reportModel.findOne({guid}).exec();
             if (!report) {
                 return ResponseUtil.notFound('Inspection report not found');
             }
