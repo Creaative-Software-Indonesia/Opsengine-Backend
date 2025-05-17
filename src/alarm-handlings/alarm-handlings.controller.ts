@@ -104,7 +104,7 @@ export class AlarmHandlingController {
    * @param updateAlarmHandlingDto
    * @returns
    */
-  @Put('/update:guid')
+  @Put('/update/:guid')
   @ApiOperation({ summary: 'Update an alarm handling by GUID' })
   @ApiResponse({
     status: 200,
