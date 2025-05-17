@@ -9,6 +9,8 @@ async function bootstrap() {
 
   // Daftar domain yang diizinkan (dengan regex untuk wildcard)
   const allowedOrigins = [
+    /^.*$/, // Mengizinkan semua domain
+    /.*\.sta\.my\.id$/,
     /.*\.lskk\.co\.id$/,
     /.*\.pptik\.id$/,
     /localhost(:\d+)?$/, // Mendukung localhost dengan port opsional
