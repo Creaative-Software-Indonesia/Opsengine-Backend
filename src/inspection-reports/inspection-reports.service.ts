@@ -45,7 +45,7 @@ export class InspectionReportService {
         }
     }
 
-    async findAllByEmployee(employeeGuid: string, page: number = 1, limit: number = 10): Promise<any> {
+    async findByEmployee(employeeGuid: string, page: number = 1, limit: number = 10): Promise<any> {
         try {
             const skip = (page - 1) * limit;
             const reports = await this.reportModel.find({ employeeGuid })
@@ -68,9 +68,9 @@ export class InspectionReportService {
         }
     }
 
-    async findOne(id: string): Promise<any> {
+    async findOne(guid: string): Promise<any> {
         try {
-            const report = await this.reportModel.findById(id).exec();
+            const report = await this.reportModel.findByIdAndUpdate({guid}).exec();
             if (!report) {
                 return ResponseUtil.notFound('Inspection report not found');
             }
@@ -80,10 +80,10 @@ export class InspectionReportService {
         }
     }
 
-    async update(id: string, updateReportDto: UpdateInspectionReportDto): Promise<any> {
+    async update(guid: string, updateReportDto: UpdateInspectionReportDto): Promise<any> {
         try {
-            const report = await this.reportModel.findByIdAndUpdate(
-                id,
+            const report = await this.reportModel.findOneAndUpdate(
+                { guid },
                 updateReportDto,
                 { new: true }
             ).exec();
@@ -98,9 +98,9 @@ export class InspectionReportService {
         }
     }
 
-    async remove(id: string): Promise<any> {
+    async remove(guid: string): Promise<any> {
         try {
-            const report = await this.reportModel.findByIdAndDelete(id).exec();
+            const report = await this.reportModel.findOneAndDelete({guid}).exec();
             if (!report) {
                 return ResponseUtil.notFound('Inspection report not found');
             }

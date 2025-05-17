@@ -30,7 +30,7 @@ import { v4 as uuidv4 } from 'uuid';
 @ApiBearerAuth()
 @Controller('inspection-reports')
 export class InspectionReportController {
-  constructor(private readonly reportService: InspectionReportService) {}
+  constructor(private readonly reportService: InspectionReportService) { }
 
   /**
    *
@@ -87,6 +87,16 @@ export class InspectionReportController {
     return this.reportService.findAllByMachine(machineGuid, page, limit);
   }
 
+  /**
+   *
+   * @param employeeGuid
+   * @param page
+   * @param limit
+   * @returns
+   */
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('employee')
   @ApiOperation({ summary: 'Get all reports for an employee with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
@@ -96,28 +106,42 @@ export class InspectionReportController {
     description: 'Inspection reports retrieved successfully.',
   })
   async findAllByEmployee(
-     @Req() req: AuthenticatedRequest,
+    @Req() req: AuthenticatedRequest,
     // @Param('employeeGuid') employeeGuid: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-     const user: any = req.user;
-     const employeeGuid = user.guid;
-    return this.reportService.findAllByEmployee(employeeGuid, page, limit);
+    const user: any = req.user;
+    const employeeGuid = user.guid;
+    return this.reportService.findByEmployee(employeeGuid, page, limit);
   }
 
-  @Get(':id')
+  /**
+   * 
+   * @param guid 
+   * @returns 
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('detail/:guid')
   @ApiOperation({ summary: 'Get an inspection report by ID' })
   @ApiResponse({
     status: 200,
     description: 'Inspection report retrieved successfully.',
   })
   @ApiResponse({ status: 404, description: 'Inspection report not found.' })
-  async findOne(@Param('id') id: string) {
-    return this.reportService.findOne(id);
+  async findOne(@Param('guid') guid: string) {
+    return this.reportService.findOne(guid);
   }
 
-  @Put(':id')
+  /**
+   * 
+   * @param guid 
+   * @param updateReportDto 
+   * @returns 
+   */
+
+  @Put('/update/:guid')
   @ApiOperation({ summary: 'Update an inspection report by ID' })
   @ApiResponse({
     status: 200,
@@ -125,20 +149,27 @@ export class InspectionReportController {
   })
   @ApiResponse({ status: 404, description: 'Inspection report not found.' })
   async update(
-    @Param('id') id: string,
+    @Param('guid') guid: string,
     @Body() updateReportDto: UpdateInspectionReportDto,
   ) {
-    return this.reportService.update(id, updateReportDto);
+    return this.reportService.update(guid, updateReportDto);
   }
 
-  @Delete(':id')
+  /**
+   * 
+   * @param id 
+   * @returns 
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('/delete/:guid')
   @ApiOperation({ summary: 'Delete an inspection report by ID' })
   @ApiResponse({
     status: 200,
     description: 'Inspection report deleted successfully.',
   })
   @ApiResponse({ status: 404, description: 'Inspection report not found.' })
-  async remove(@Param('id') id: string) {
-    return this.reportService.remove(id);
+  async remove(@Param('guid') guid: string) {
+    return this.reportService.remove(guid);
   }
 }
