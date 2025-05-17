@@ -87,7 +87,7 @@ export class InspectionReportController {
     return this.reportService.findAllByMachine(machineGuid, page, limit);
   }
 
-  @Get('employee/:employeeGuid')
+  @Get('employee')
   @ApiOperation({ summary: 'Get all reports for an employee with pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
@@ -96,10 +96,13 @@ export class InspectionReportController {
     description: 'Inspection reports retrieved successfully.',
   })
   async findAllByEmployee(
-    @Param('employeeGuid') employeeGuid: string,
+     @Req() req: AuthenticatedRequest,
+    // @Param('employeeGuid') employeeGuid: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
+     const user: any = req.user;
+     const employeeGuid = user.guid;
     return this.reportService.findAllByEmployee(employeeGuid, page, limit);
   }
 
