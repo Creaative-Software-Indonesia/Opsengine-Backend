@@ -179,6 +179,7 @@ export class FtpController {
         mimetype: file.mimetype
       };
     } catch (error) {
+        console.log(error);
       this.logger.error(`Upload failed: ${error.message}`, error.stack);
       throw error;
     }
