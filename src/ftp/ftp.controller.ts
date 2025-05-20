@@ -69,6 +69,7 @@ import {
   UseInterceptors,
   BadRequestException,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FtpService } from './ftp.service';
@@ -84,6 +85,9 @@ import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
 import * as path from 'path';
 import { diskStorage } from 'multer';
 
+const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+const maxFileSize = 5 * 1024 * 1024; // 5MB
+
 @ApiTags('FTP')
 @Controller('ftp')
 export class FtpController {
@@ -91,18 +95,10 @@ export class FtpController {
 
   constructor(private readonly ftpService: FtpService) {}
 
-  /**
-   * Upload image to FTP server
-   * @param file The file to upload
-   * @returns Upload result with file URL
-   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('upload')
-  @ApiOperation({ 
-    summary: 'Upload gambar ke FTP',
-    description: 'Upload gambar dengan format JPG/JPEG/PNG maksimal 5MB'
-  })
+  @ApiOperation({ summary: 'Upload image to FTP server' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -117,55 +113,49 @@ export class FtpController {
       required: ['file']
     },
   })
-  @ApiResponse({ 
-    status: 201, 
-    description: 'File uploaded successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: true },
-        message: { type: 'string', example: 'File uploaded successfully' },
-        filename: { type: 'string', example: 'https://image-view.sta.my.id/activity/uuid.jpg' },
-        originalName: { type: 'string', example: 'example.jpg' },
-        size: { type: 'number', example: 123456 },
-        mimetype: { type: 'string', example: 'image/jpeg' }
-      }
-    }
-  })
-  @ApiResponse({ status: 400, description: 'Invalid file type or size' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-      },
-      fileFilter: (req, file, callback) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
+  @UseInterceptors(FileInterceptor('file', {
+    limits: { fileSize: maxFileSize },
+    fileFilter: (req, file, callback) => {
+      try {
+        if (!file || !file.originalname) {
+          return callback(new BadRequestException('Invalid file object'), false);
+        }
+
+        const ext = path.extname(file.originalname || '').toLowerCase();
+        if (!allowedExtensions.includes(ext)) {
           return callback(
-            new BadRequestException('Only JPG/JPEG/PNG files are allowed'),
+            new BadRequestException(
+              `Only ${allowedExtensions.join(', ')} files are allowed`
+            ),
             false
           );
         }
         callback(null, true);
+      } catch (error) {
+        callback(error, false);
+      }
+    },
+    storage: diskStorage({
+      destination: './tmp/uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
       },
-      storage: diskStorage({
-        destination: './tmp/uploads',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
-        },
-      }),
     }),
-  )
+  }))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     try {
+      // Additional validation in case interceptor doesn't catch it
       if (!file) {
         throw new BadRequestException('No file uploaded');
       }
 
       this.logger.log(`Uploading file: ${file.originalname} (${file.size} bytes)`);
+
+      // Validate file buffer exists
+      if (!file.buffer) {
+        throw new BadRequestException('File buffer is empty');
+      }
 
       const filename = await this.ftpService.uploadFile(file);
       const url = `https://image-view.sta.my.id/activity/${filename}`;
@@ -179,9 +169,12 @@ export class FtpController {
         mimetype: file.mimetype
       };
     } catch (error) {
-        console.log(error);
       this.logger.error(`Upload failed: ${error.message}`, error.stack);
-      throw error;
+      console.error(error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('File upload failed. Please try again.');
     }
   }
 }
