@@ -104,6 +104,7 @@ export class FtpService {
             this.logger.log(`File uploaded successfully: ${newFileName}`);
             return newFileName;
         } catch (error) {
+            console.log(error);
             this.logger.error(`FTP upload failed: ${error.message}`, error.stack);
             throw new InternalServerErrorException(error.message);
         } finally {
