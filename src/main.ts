@@ -7,6 +7,9 @@ import * as bodyParser from 'body-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(bodyParser.json({ limit: '6mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '6mb' }));
+
   // Daftar domain yang diizinkan (dengan regex untuk wildcard)
   const allowedOrigins = [
     /^.*$/, // Mengizinkan semua domain
