@@ -43,11 +43,13 @@ export class MaintenanceChecklistService {
     try {
       const skip = (page - 1) * limit;
       const checklists = await this.checklistModel
-        .find()
+        .find({ companyGuid })
         .skip(skip)
         .limit(limit)
         .exec();
-      const total = await this.checklistModel.countDocuments().exec();
+      const total = await this.checklistModel
+        .countDocuments({ companyGuid })
+        .exec();
 
       return ResponseUtil.pagination(
         checklists,

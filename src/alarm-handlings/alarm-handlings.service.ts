@@ -118,8 +118,12 @@ export class AlarmHandlingService {
   async findAll(companyGuid: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-      this.alarmHandlingModel.find().skip(skip).limit(limit).exec(),
-      this.alarmHandlingModel.countDocuments().exec(),
+      this.alarmHandlingModel
+        .find({ companyGuid })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.alarmHandlingModel.countDocuments({ companyGuid }).exec(),
     ]);
 
     return {
