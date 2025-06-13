@@ -8,12 +8,13 @@ import { AlarmHandlingModule } from './alarm-handlings/alarm-handlings.module';
 import { MaintenanceChecklistModule } from './maintenance-checklists/maintenance-checklists.module';
 import { InspectionReportModule } from './inspection-reports/inspection-reports.module';
 import { FtpModule } from './ftp/ftp.module';
+import { CompanySignatureModule } from './company-signature/company-signature.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     MongooseModule.forRoot(process.env.DATABASE || 'mongodb://localhost:27017/defaultdb'),
-    MachinesModule, MachinesModule, AlarmHandlingModule, MaintenanceChecklistModule, InspectionReportModule, FtpModule],
+    MachinesModule, MachinesModule, AlarmHandlingModule, MaintenanceChecklistModule, InspectionReportModule, FtpModule, CompanySignatureModule],
   controllers: [AppController],
   providers: [AppService],
 })
