@@ -20,6 +20,7 @@ export class MachinesService {
     }
 
     async findAll(page: number, limit: number): Promise<{ data: Machine[]; total: number }> {
+        if (page < 1) page = 1;
         const skip = (page - 1) * limit;
         const data = await this.machineModel.find().skip(skip).limit(limit).exec();
         const total = await this.machineModel.countDocuments().exec();
