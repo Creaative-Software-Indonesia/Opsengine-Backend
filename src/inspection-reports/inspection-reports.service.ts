@@ -24,6 +24,7 @@ export class InspectionReportService {
 
     async findAllByMachine(machineGuid: string, page: number = 1, limit: number = 10): Promise<any> {
         try {
+            if (page < 1) page = 1;
             const skip = (page - 1) * limit;
             const reports = await this.reportModel.find({ machineGuid })
                 .skip(skip)
@@ -47,6 +48,7 @@ export class InspectionReportService {
 
     async findByEmployee(employeeGuid: string, page: number = 1, limit: number = 10): Promise<any> {
         try {
+            if (page < 1) page = 1;
             const skip = (page - 1) * limit;
             const reports = await this.reportModel.find({ employeeGuid })
                 .skip(skip)
