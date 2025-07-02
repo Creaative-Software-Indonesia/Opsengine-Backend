@@ -51,6 +51,7 @@ export class MachineAlarmService {
 
     async findAll(companyGuid: string, page: number = 1, limit: number = 10): Promise<any> {
         try {
+            if (page < 1) page = 1;
             const skip = (page - 1) * limit;
             const alarms = await this.machineAlarmModel.find({ companyGuid })
                 .skip(skip)
