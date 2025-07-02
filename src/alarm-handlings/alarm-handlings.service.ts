@@ -39,6 +39,7 @@ export class AlarmHandlingService {
     limit: number = 10,
   ): Promise<any> {
     try {
+      if (page < 1) page = 1;
       const skip = (page - 1) * limit;
       const handlings = await this.alarmHandlingModel
         .find({ alarmGuid })
